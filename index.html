@@ -1062,10 +1062,13 @@ function startAutoSlide(resetProgress = true) {
       bar.style.width = Math.min(progressPercent, 100) + '%';
     }
 
-    if (progressPercent >= 100) {
-      progressPercent = 0;
-      updateSlideDisplay();
-    }
+if (progressPercent >= 100) {
+  progressPercent = 0;
+
+  appState.slideIndex = (appState.slideIndex + 1) % 4;
+
+  updateSlideDisplay();
+}
   }, stepMs);
 }
 
