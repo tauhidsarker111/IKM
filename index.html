@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ইমাম ও মুয়াজ্জিনদের ভাতা রেজিস্ট্রেশন নোটিশ ও টোকেন ডিসপ্লে - কালীগঞ্জ উপজেলা প্রশাসন</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            bangla: ['Hind Siliguri', 'sans-serif'],
+          },
+          colors: {
+            gov: {
+              dark: '#012c1c',
+              emerald: '#044331',
+              light: '#0a6349',
+              gold: '#f59e0b',
+              amber: '#d97706',
+              surface: '#09291f',
+              border: '#164e3d'
+            }
+          },
+          animation: {
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Hind Siliguri', sans-serif;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.2);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(245, 158, 11, 0.3);
+      border-radius: 9999px;
+    }
+    .neon-gold-glow {
+      box-shadow: 0 0 35px rgba(245, 158, 11, 0.3);
+    }
+    @keyframes progressAnim {
+      from { width: 0%; }
+      to { width: 100%; }
+    }
+    .timer-progress {
+      animation: progressAnim 10s linear infinite;
+    }
+    .timer-paused {
+      animation-play-state: paused;
+    }
+  </style>
+</head>
+<body class="bg-gov-dark text-slate-100 min-h-screen flex flex-col justify-between overflow-x-hidden selection:bg-amber-400 selection:text-black">
+
+  <!-- TOP HEADER -->
+  <header class="bg-gov-surface/95 backdrop-blur-md border-b border-gov-border px-4 py-2.5 flex items-center justify-between z-50">
+    <div class="flex items-center gap-3">
+      <!-- BD Govt Emblem SVG -->
+      <div class="w-10 h-10 rounded-full bg-emerald-950 border-2 border-emerald-400/50 p-1 flex items-center justify-center shrink-0 shadow">
+        <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow">
+          <circle cx="50" cy="50" r="46" fill="#006a4e" stroke="#d97706" stroke-width="3"/>
+          <circle cx="50" cy="50" r="30" fill="#f42a41"/>
+          <circle cx="50" cy="50" r="18" fill="#ffd100"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="text-base sm:text-lg font-bold text-emerald-200 tracking-wide leading-tight">
+          গণপ্রজাতন্ত্রী বাংলাদেশ সরকার
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-300">
+          উপজেলা নির্বাহী অফিসারের কার্যালয়, কালীগঞ্জ, গাজীপুর
+        </p>
+      </div>
+    </div>
+
+    <!-- Live Bangla Clock & Navigation Toggles -->
+    <div class="flex items-center gap-3">
+      <div class="hidden md:flex flex-col text-right">
+        <div id="liveClock" class="text-sm font-bold text-amber-400 font-mono tracking-wider">--:--:--</div>
+        <div id="liveDate" class="text-xs text-slate-400">তারিখ লোড হচ্ছে...</div>
+      </div>
+
+      <!-- Mode Switcher -->
+      <div class="bg-emerald-950/90 p-1 rounded-xl border border-gov-border flex items-center gap-1 text-xs sm:text-sm">
+        <button id="btnDisplayMode" onclick="setMode('screen')" class="px-3 py-1.5 rounded-lg font-semibold transition-all bg-emerald-600 text-white shadow">
+          🖥️ ডিসপ্লে স্ক্রিন
+        </button>
+        <button id="btnOperatorMode" onclick="setMode('operator')" class="px-3 py-1.5 rounded-lg font-semibold transition-all text-slate-300 hover:text-white hover:bg-emerald-900">
+          ⚙️ অপারেটর ডেস্ক
+        </button>
+      </div>
+
+      <!-- Fullscreen Button -->
+      <button onclick="toggleFullScreen()" title="ফুলস্ক্রিন করুন" class="p-2 rounded-lg bg-gov-border hover:bg-emerald-800 text-slate-200 transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ======================== 1. GIANT SCREEN VIEW ======================== -->
+  <main id="screenView" class="flex-1 flex flex-col justify-between p-3 sm:p-5 lg:p-6 max-w-[1920px] w-full mx-auto relative transition-all duration-300">
+    
+    <!-- Top Highlights Banner -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-3">
+      
+      <!-- Box 1: Giant Token Display -->
+      <div class="lg:col-span-4 bg-gradient-to-br from-gov-emerald to-emerald-950 border-2 border-amber-400/80 rounded-3xl p-4 shadow-2xl relative overflow-hidden neon-gold-glow flex flex-col justify-center items-center text-center">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="inline-block w-3 h-3 rounded-full bg-amber-400 animate-ping"></span>
+          <span class="text-amber-300 font-bold uppercase tracking-wider text-xs sm:text-sm">
+            চলতি সেবা টোকেন (বর্তমান)
+          </span>
+        </div>
+
+        <div class="my-0.5 flex items-baseline justify-center gap-1.5">
+          <span class="text-2xl text-amber-200/80 font-bold">#</span>
+          <span id="screenTokenNum" class="text-6xl sm:text-7xl font-black text-amber-400 tracking-tight font-mono drop-shadow-[0_4px_16px_rgba(245,158,11,0.6)]">
+            ০০১
+          </span>
+        </div>
+
+        <div id="screenTokenSub" class="text-xs sm:text-sm text-emerald-200 bg-emerald-900/70 px-4 py-1 rounded-full border border-emerald-500/40 font-medium">
+          কাউন্টার নম্বর: ০১ এ উপস্থিত হোন
+        </div>
+      </div>
+
+      <!-- Box 2: Current Union & Ward Broadcast -->
+      <div class="lg:col-span-5 bg-gradient-to-r from-gov-surface via-emerald-950 to-gov-surface border-2 border-emerald-500/60 rounded-3xl p-4 shadow-2xl flex flex-col justify-center relative overflow-hidden">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="flex items-center gap-2 text-emerald-300 font-semibold text-xs sm:text-sm tracking-wide">
+            <svg class="w-4 h-4 text-emerald-400 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>
+            </svg>
+            রেজিস্ট্রেশন আহ্বান
+          </span>
+          <span class="text-[11px] font-bold bg-amber-500 text-black px-2.5 py-0.5 rounded-full uppercase">লাইভ নোটিশ</span>
+        </div>
+
+        <div class="space-y-0.5">
+          <div class="flex flex-wrap items-baseline gap-2">
+            <span class="text-slate-300 text-sm">ইউনিয়ন / এলাকা:</span>
+            <span id="screenUnion" class="text-2xl sm:text-3xl font-extrabold text-white tracking-wide">
+              বাহাদুরসাদী ইউনিয়ন
+            </span>
+          </div>
+
+          <div class="flex flex-wrap items-baseline gap-2">
+            <span class="text-slate-300 text-sm">ওয়ার্ড নম্বর:</span>
+            <span id="screenWard" class="text-2xl sm:text-3xl font-black text-amber-300">
+              ১–৫ নং ওয়ার্ড
+            </span>
+            <span id="screenNote" class="text-xs sm:text-sm text-emerald-300 italic ml-1">
+              (বাকি আছে যারা)
+            </span>
+          </div>
+        </div>
+
+        <div class="mt-2 flex items-center text-xs text-slate-300 gap-1.5">
+          <svg class="w-4 h-4 text-red-400 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+          </svg>
+          <span id="screenVenue">ভেন্যু: <strong>উপজেলা সম্মেলন কক্ষ (হল রুম), কালীগঞ্জ</strong></span>
+        </div>
+      </div>
+
+      <!-- Box 3: WhatsApp Helpline (Always Visible) -->
+      <div class="lg:col-span-3 bg-gradient-to-br from-[#128C7E]/20 to-emerald-950 border-2 border-emerald-500/80 rounded-3xl p-4 shadow-2xl flex flex-col justify-center items-center text-center relative group">
+        <div class="w-11 h-11 rounded-2xl bg-[#25D366] text-white flex items-center justify-center shadow-lg shadow-emerald-900/50 mb-1.5">
+          <svg class="w-7 h-7 fill-current" viewBox="0 0 24 24">
+            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+          </svg>
+        </div>
+
+        <span class="text-xs uppercase tracking-wider text-emerald-300 font-bold">
+          জরুরী যোগাযোগ ও হেল্পলাইন
+        </span>
+
+        <span class="text-2xl sm:text-3xl font-black text-white font-mono tracking-wider group-hover:text-emerald-300 transition-colors">
+          ০১৮৭৬৫৯৮১৬৪
+        </span>
+
+        <span class="text-[11px] text-slate-300">
+          যেকোনো সহযোগিতার জন্য হোয়াটসঅ্যাপে বার্তা দিন
+        </span>
+      </div>
+
+    </section>
+
+    <!-- CENTER CAROUSEL: 4 PRESENTATION SLIDES (AUTO 10 SECONDS) -->
+    <section class="flex-1 bg-gradient-to-b from-gov-surface/90 to-emerald-950/80 border border-gov-border rounded-3xl p-5 sm:p-7 flex flex-col justify-between relative overflow-hidden shadow-2xl min-h-[420px]">
+      
+      <!-- Slide Indicator Dots & 10s Timer Bar -->
+      <div class="w-full flex items-center justify-between pb-3 border-b border-emerald-900/70">
+        <!-- Quick Union Badges Showcase -->
+        <div class="hidden md:flex items-center gap-1.5 text-xs text-emerald-300 overflow-x-auto py-0.5">
+          <span class="font-bold text-amber-400 mr-1">ইউনিয়নসমূহ:</span>
+          <span class="bg-emerald-950 px-2 py-0.5 rounded border border-emerald-700/60">১. বক্তারপুর</span>
+          <span class="bg-emerald-950 px-2 py-0.5 rounded border border-emerald-700/60">২. মোক্তারপুর</span>
+          <span class="bg-emerald-950 px-2 py-0.5 rounded border border-emerald-700/60">৩. জামালপুর</span>
+          <span class="bg-emerald-950 px-2 py-0.5 rounded border border-emerald-700/60">৪. জাঙ্গালিয়া</span>
+          <span class="bg-emerald-950 px-2 py-0.5 rounded border border-emerald-700/60">৫. বাহাদুরসাদী</span>
+          <span class="bg-emerald-950 px-2 py-0.5 rounded border border-emerald-700/60">৬. নাগরী</span>
+          <span class="bg-emerald-950 px-2 py-0.5 rounded border border-emerald-700/60">৭. তুমুলিয়া</span>
+          <span class="bg-amber-950 text-amber-300 px-2 py-0.5 rounded border border-amber-600/60 font-semibold">৮. পৌরসভা</span>
+        </div>
+
+        <!-- Carousel Status -->
+        <div class="flex items-center gap-3 ml-auto">
+          <button onclick="toggleAutoPlay()" class="flex items-center gap-1.5 text-xs text-slate-300 bg-emerald-950 px-3 py-1 rounded-full border border-gov-border hover:bg-emerald-900 transition">
+            <span id="autoIndicatorDot" class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            <span id="autoIndicatorText">অটো স্লাইড: ১০ সে.</span>
+          </button>
+          
+          <div class="flex gap-2">
+            <button onclick="goToSlide(0)" title="স্লাইড ১" class="slide-dot w-7 h-2.5 rounded-full bg-amber-400 transition-all"></button>
+            <button onclick="goToSlide(1)" title="স্লাইড ২" class="slide-dot w-7 h-2.5 rounded-full bg-slate-700 transition-all"></button>
+            <button onclick="goToSlide(2)" title="স্লাইড ৩" class="slide-dot w-7 h-2.5 rounded-full bg-slate-700 transition-all"></button>
+            <button onclick="goToSlide(3)" title="স্লাইড ৪" class="slide-dot w-7 h-2.5 rounded-full bg-slate-700 transition-all"></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 1: বর্তমান ওয়ার্ড ও ইউনিয়ন সম্পর্কিত মূল নোটিশ -->
+      <div id="slide-0" class="slide-item flex-1 flex flex-col justify-center items-center text-center space-y-5 my-auto">
+        <div class="inline-flex items-center gap-2 bg-emerald-800/60 text-emerald-200 border border-emerald-400/40 px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          ইমাম ও মুয়াজ্জিনদের বিশেষ সম্মানী ভাতা কার্যক্রম
+        </div>
+
+        <h2 id="s1_title" class="text-3xl sm:text-5xl font-black text-amber-300 leading-snug tracking-tight">
+          জরুরী নোটিশ: ইমাম ও মুয়াজ্জিনদের ভাতা রেজিস্ট্রেশন
+        </h2>
+
+        <p id="s1_desc" class="text-slate-200 text-sm sm:text-lg max-w-3xl mx-auto leading-relaxed">
+          কালীগঞ্জ উপজেলার সকল ইউনিয়নের সম্মানিত ইমাম ও মুয়াজ্জিন সাহেবগণকে নির্ধারিত সময়সূচী মোতাবেক প্রয়োজনীয় কাগজপত্রসহ উপজেলা সম্মেলন কক্ষে উপস্থিত হওয়ার জন্য অনুরোধ করা যাচ্ছে।
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-3 text-left w-full max-w-5xl">
+          <div class="bg-gov-surface border border-emerald-500/30 p-4 rounded-2xl shadow">
+            <div class="text-xs text-slate-400 mb-1">রেজিস্ট্রেশন ভেন্যু:</div>
+            <div id="s1_card1_title" class="text-base sm:text-lg font-bold text-white">উপজেলা সম্মেলন কক্ষ</div>
+            <div id="s1_card1_sub" class="text-xs text-emerald-300">উপজেলা নির্বাহী অফিসারের কার্যালয়, কালীগঞ্জ</div>
+          </div>
+          <div class="bg-gov-surface border border-emerald-500/30 p-4 rounded-2xl shadow">
+            <div class="text-xs text-slate-400 mb-1">প্রজ্ঞাপন জারি ও আয়োজন:</div>
+            <div id="s1_card2_title" class="text-base sm:text-lg font-bold text-white">উপজেলা প্রশাসন, কালীগঞ্জ</div>
+            <div id="s1_card2_sub" class="text-xs text-emerald-300">জেলা প্রশাসন ও ইসলামিক ফাউন্ডেশন সমন্বয়</div>
+          </div>
+          <div class="bg-gov-surface border border-emerald-500/30 p-4 rounded-2xl shadow">
+            <div class="text-xs text-slate-400 mb-1">শৃঙ্খলা ও সময়ানুবর্তিতা:</div>
+            <div id="s1_card3_title" class="text-base sm:text-lg font-bold text-amber-300">টোকেন নম্বর প্রদর্শন আবশ্যক</div>
+            <div id="s1_card3_sub" class="text-xs text-slate-300">লাইনে শৃঙ্খলা বজায় রেখে সেবা গ্রহণ করুন</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 2: ওয়ার্ডভিত্তিক উপস্থিতির সময়সূচী (৮ ইউনিয়ন ও পৌরসভা) -->
+      <div id="slide-1" class="slide-item hidden flex-1 flex flex-col justify-center w-full max-w-6xl mx-auto space-y-3 my-auto">
+        <div class="text-center">
+          <h3 class="text-2xl sm:text-4xl font-extrabold text-amber-300">
+            ওয়ার্ডভিত্তিক উপস্থিতির সময়সূচী (ইউনিয়নওয়ারী সময়ক্রম)
+          </h3>
+          <p class="text-slate-300 text-xs sm:text-sm mt-0.5">
+            বাহাদুরসাদী, নাগরী, বক্তারপুর, মোক্তারপুর, জামালপুর, জাঙ্গালিয়া, তুমুলিয়া ও কালীগঞ্জ পৌরসভা
+          </p>
+        </div>
+
+        <div class="overflow-x-auto rounded-2xl border border-gov-border shadow-xl bg-gov-surface">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-emerald-900/90 text-amber-300 text-xs sm:text-sm border-b border-emerald-700">
+                <th class="py-2.5 px-4 font-bold">ক্রম</th>
+                <th class="py-2.5 px-4 font-bold">ইউনিয়ন / এলাকা</th>
+                <th class="py-2.5 px-4 font-bold">ওয়ার্ডসমূহ</th>
+                <th class="py-2.5 px-4 font-bold text-right">নির্ধারিত সময়সূচী</th>
+              </tr>
+            </thead>
+            <tbody id="scheduleTableDisplay" class="divide-y divide-emerald-950/80 text-slate-200 text-xs sm:text-sm font-medium">
+              <!-- Dynamically populated from script -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Slide 3: প্রয়োজনীয় কাগজপত্র চেকলিস্ট -->
+      <div id="slide-2" class="slide-item hidden flex-1 flex flex-col justify-center w-full max-w-5xl mx-auto space-y-4 my-auto">
+        <div class="text-center">
+          <span class="text-xs uppercase tracking-wider text-emerald-300 bg-emerald-900 px-3 py-1 rounded-full font-bold">প্রয়োজনীয় তথ্য ও নথিপত্র</span>
+          <h3 class="text-2xl sm:text-4xl font-extrabold text-amber-300 mt-2">
+            প্রয়োজনীয় কাগজপত্র চেকলিস্ট
+          </h3>
+          <p class="text-slate-300 text-xs sm:text-sm mt-0.5">
+            রেজিস্ট্রেশন টেবিলে প্রবেশের পূর্বে সকল নথিপত্র প্রস্তুত রাখুন
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 pt-2">
+          <!-- Item 1: NID -->
+          <div class="bg-gov-surface border-2 border-emerald-500/50 rounded-2xl p-5 text-center shadow-lg flex flex-col items-center">
+            <div class="w-14 h-14 rounded-2xl bg-emerald-800/70 border border-emerald-400/40 flex items-center justify-center text-amber-300 mb-3 shadow">
+              <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M3 5v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2zm12 4c0 1.11-.89 2-2 2s-2-.89-2-2 .89-2 2-2 2 .89 2 2zm-7 8c0-1.67 3.33-2.5 5-2.5s5 .83 5 2.5v1H8v-1z"/>
+              </svg>
+            </div>
+            <h4 id="s3_card1_title" class="text-lg font-bold text-white mb-1">মূল জাতীয় পরিচয়পত্র (NID)</h4>
+            <p id="s3_card1_desc" class="text-xs sm:text-sm text-emerald-200">আবেদনকারীর মূল NID কার্ড প্রদর্শন এবং ১ কপি পরিষ্কার ফটোকপি জমা দিতে হবে।</p>
+          </div>
+
+          <!-- Item 2: Bank Account / Cheque -->
+          <div class="bg-gov-surface border-2 border-emerald-500/50 rounded-2xl p-5 text-center shadow-lg flex flex-col items-center">
+            <div class="w-14 h-14 rounded-2xl bg-emerald-800/70 border border-emerald-400/40 flex items-center justify-center text-amber-300 mb-3 shadow">
+              <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M4 10v7h3v-7H4zm6 0v7h3v-7h-3zM2 22h19v-3H2v3zm14-12v7h3v-7h-3zm-4.5-9L2 6v2h19V6l-9.5-5z"/>
+              </svg>
+            </div>
+            <h4 id="s3_card2_title" class="text-lg font-bold text-white mb-1">ব্যাংক হিসাব ও চেকপাতা</h4>
+            <p id="s3_card2_desc" class="text-xs sm:text-sm text-emerald-200">যেকোনো তফসিলি ব্যাংকে নিজের নামের সচল একাউন্টের চেকবইয়ের পাতা বা স্টেটমেন্ট।</p>
+          </div>
+
+          <!-- Item 3: Photo -->
+          <div class="bg-gov-surface border-2 border-emerald-500/50 rounded-2xl p-5 text-center shadow-lg flex flex-col items-center">
+            <div class="w-14 h-14 rounded-2xl bg-emerald-800/70 border border-emerald-400/40 flex items-center justify-center text-amber-300 mb-3 shadow">
+              <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+              </svg>
+            </div>
+            <h4 id="s3_card3_title" class="text-lg font-bold text-white mb-1">পাসপোর্ট সাইজ ছবি</h4>
+            <p id="s3_card3_desc" class="text-xs sm:text-sm text-emerald-200">সদ্য তোলা ২ কপি পাসপোর্ট সাইজের স্পষ্ট রঙিন ল্যাব প্রিন্ট ছবি।</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 4: জরুরী নির্দেশনা ও উপজেলা প্রশাসনের সতর্কবার্তা -->
+      <div id="slide-3" class="slide-item hidden flex-1 flex flex-col justify-center w-full max-w-4xl mx-auto space-y-4 my-auto text-center">
+        <div class="inline-block p-3.5 rounded-full bg-red-950/70 border border-red-500/50 text-red-400 mx-auto">
+          <svg class="w-10 h-10 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+        </div>
+
+        <h3 id="s4_title" class="text-2xl sm:text-4xl font-black text-amber-300">
+          জরুরী নির্দেশনা ও উপজেলা প্রশাসনের সতর্কবার্তা
+        </h3>
+
+        <div class="bg-gov-surface border-l-4 border-amber-400 p-5 rounded-2xl text-left max-w-2xl mx-auto space-y-2.5 shadow-lg">
+          <p id="s4_rule1" class="text-sm sm:text-base text-slate-100 flex items-start gap-2">
+            <span class="text-amber-400 font-bold text-lg">•</span>
+            <span><strong>নির্ধারিত সময়ে উপস্থিতি বাধ্যতামূলক:</strong> নির্ধারিত ইউনিয়ন ও ওয়ার্ডের স্লট শেষ হলে পরবর্তী সাধারণ সেশনে অপেক্ষা করতে হবে।</span>
+          </p>
+          <p id="s4_rule2" class="text-sm sm:text-base text-slate-100 flex items-start gap-2">
+            <span class="text-amber-400 font-bold text-lg">•</span>
+            <span><strong>টোকেন নম্বর কলিং:</strong> স্ক্রিনে ঘোষিত টোকেন নম্বর অনুযায়ী সরাসরি নির্ধারিত বুথে আগমন করুন।</span>
+          </p>
+          <p id="s4_rule3" class="text-sm sm:text-base text-slate-100 flex items-start gap-2">
+            <span class="text-amber-400 font-bold text-lg">•</span>
+            <span><strong>কোনো মধ্যস্বত্বভোগী নয়:</strong> ভাতা সংক্রান্ত সম্পূর্ণ প্রক্রিয়া উপজেলা প্রশাসন কর্তৃক সরাসরি ও সম্পূর্ণ বিনামূল্যে পরিচালিত।</span>
+          </p>
+          <p id="s4_rule4" class="text-sm sm:text-base text-slate-100 flex items-start gap-2">
+            <span class="text-amber-400 font-bold text-lg">•</span>
+            <span><strong>সহায়তা ও তথ্য যাচাই:</strong> যেকোনো দ্বিধায় তাৎক্ষণিক হোয়াটসঅ্যাপ হেল্পলাইনে <strong>০১৮৭৬৫৯৮১৬৪</strong> যোগাযোগ করুন।</span>
+          </p>
+        </div>
+
+        <div class="text-xs text-slate-400 font-semibold tracking-wide">
+          আদেশক্রমে: উপজেলা নির্বাহী অফিসার, কালীগঞ্জ, গাজীপুর
+        </div>
+      </div>
+
+      <!-- Dynamic 10-Second Progress Line at Bottom of Slide Container -->
+      <div class="w-full bg-emerald-950/80 rounded-full h-1 overflow-hidden mt-2">
+        <div id="progressBar" class="bg-gradient-to-r from-amber-500 to-emerald-400 h-full w-0 transition-all duration-300"></div>
+      </div>
+    </section>
+
+    <!-- FOOTER TICKER -->
+    <footer class="mt-3 bg-gov-surface border border-gov-border rounded-2xl p-2.5 flex items-center gap-3 overflow-hidden shadow-lg">
+      <div class="bg-red-700 text-white font-bold text-xs px-3 py-1 rounded-xl shrink-0 uppercase flex items-center gap-1.5 shadow">
+        <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
+        বিজ্ঞপ্তি
+      </div>
+      <div class="overflow-hidden relative w-full text-slate-200 text-xs sm:text-sm font-medium whitespace-nowrap">
+        <div id="screenTicker" class="inline-block animate-[marquee_28s_linear_infinite]">
+          * ইমাম ও মুয়াজ্জিনদের ভাতা রেজিস্ট্রেশন কার্যক্রম চলমান * বাহাদুরসাদী, নাগরী, বক্তারপুর, মোক্তারপুর, জামালপুর, জাঙ্গালিয়া, তুমুলিয়া ও কালীগঞ্জ পৌরসভার সকল ইমাম-মুয়াজ্জিনদের আহ্বান জানানো হচ্ছে * জরুরী হেল্পলাইন: ০১৮৭৬৫৯৮১৬৪ *
+        </div>
+      </div>
+    </footer>
+  </main>
+
+
+  <!-- ======================== 2. OPERATOR CONTROL VIEW ======================== -->
+  <main id="operatorView" class="hidden flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6">
+    
+    <!-- Top Sync & Monitor Helper -->
+    <div class="bg-gradient-to-r from-emerald-950 to-gov-surface border border-emerald-500/40 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg">
+      <div class="flex items-center gap-3">
+        <div class="w-3.5 h-3.5 rounded-full bg-emerald-400 animate-ping"></div>
+        <div>
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            কালীগঞ্জ উপজেলা প্রশাসন — অপারেটর কন্ট্রোল ডেস্ক
+          </h2>
+          <p class="text-xs text-slate-300">
+            এখানে করা যেকোনো পরিবর্তন তাৎক্ষণিকভাবে জায়ান্ট স্ক্রিন ও প্রজেক্টরে সিনক্রোনাইজ হবে।
+          </p>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="playChime()" class="px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400 text-amber-300 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+          🔔 কলিং ঘণ্টা টেস্ট
+        </button>
+        <button onclick="openDisplayInNewWindow()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow">
+          🚀 নতুন স্ক্রিন খুলুন
+        </button>
+      </div>
+    </div>
+
+    <!-- Tabs for Operator Settings -->
+    <div class="flex flex-wrap gap-2 border-b border-gov-border pb-2">
+      <button onclick="switchOpTab('tab-live')" id="tabBtn-live" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-500 text-gov-dark transition shadow">
+        ⚡ লাইভ কল ও টোকেন
+      </button>
+      <button onclick="switchOpTab('tab-schedule')" id="tabBtn-schedule" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-emerald-950 text-slate-300 hover:text-white transition">
+        📅 ৮ ইউনিয়ন ও পৌরসভা সময়সূচী
+      </button>
+      <button onclick="switchOpTab('tab-slides')" id="tabBtn-slides" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-emerald-950 text-slate-300 hover:text-white transition">
+        📝 স্লাইড টেক্সট এডিটর
+      </button>
+    </div>
+
+    <!-- TAB 1: LIVE CALL & TOKEN -->
+    <div id="tab-live" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      <!-- Token Controller -->
+      <div class="bg-gov-surface border border-gov-border rounded-3xl p-6 shadow-xl space-y-4">
+        <div class="flex items-center justify-between border-b border-gov-border pb-3">
+          <h3 class="text-base font-bold text-amber-300 flex items-center gap-2">
+            টোকেন নম্বর নিয়ন্ত্রণ
+          </h3>
+          <span class="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/40">লাইভ ডিসপ্লে</span>
+        </div>
+
+        <!-- Big Number Indicator -->
+        <div class="flex items-center justify-center gap-4 bg-emerald-950/70 p-4 rounded-2xl border border-emerald-900">
+          <button onclick="changeToken(-1)" class="w-13 h-13 px-4 py-2 rounded-2xl bg-emerald-800 hover:bg-emerald-700 text-white text-3xl font-black transition active:scale-95 flex items-center justify-center shadow">
+            -
+          </button>
+          <div class="text-center min-w-[120px]">
+            <div class="text-[11px] text-slate-400 uppercase font-bold">টোকেন নং</div>
+            <div id="opTokenDisplay" class="text-5xl font-black text-amber-400 font-mono">০০১</div>
+          </div>
+          <button onclick="changeToken(1)" class="w-13 h-13 px-4 py-2 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white text-3xl font-black transition active:scale-95 flex items-center justify-center shadow">
+            +
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-slate-300 mb-1 font-medium">সরাসরি টোকেন বসান:</label>
+            <input type="number" id="inputToken" value="1" min="1" max="9999" class="w-full bg-emerald-950 border border-gov-border rounded-xl px-3 py-2 text-white font-mono text-center font-bold focus:border-amber-400 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-300 mb-1 font-medium">কাউন্টার / বুথ নির্দেশ:</label>
+            <input type="text" id="inputCounter" value="কাউন্টার নম্বর: ০১ এ উপস্থিত হোন" class="w-full bg-emerald-950 border border-gov-border rounded-xl px-3 py-2 text-white text-xs sm:text-sm focus:border-amber-400 focus:outline-none">
+          </div>
+        </div>
+
+        <button onclick="applyToken()" class="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-gov-dark font-extrabold rounded-xl transition shadow-lg flex items-center justify-center gap-2">
+          <span>🔔 নতুন টোকেন ঘোষণা ও ঘণ্টা বাজান</span>
+        </button>
+      </div>
+
+      <!-- Ward & Union Controller (With all 8 Unions + Municipality) -->
+      <div class="bg-gov-surface border border-gov-border rounded-3xl p-6 shadow-xl space-y-4">
+        <div class="flex items-center justify-between border-b border-gov-border pb-3">
+          <h3 class="text-base font-bold text-emerald-300 flex items-center gap-2">
+            চলতি ইউনিয়ন ও ওয়ার্ড সম্প্রচার
+          </h3>
+          <span class="text-xs bg-emerald-900 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-700">৮ ইউনিয়ন ও পৌরসভা</span>
+        </div>
+
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs text-slate-300 mb-1 font-medium">ইউনিয়ন / এলাকা নির্বাচন করুন:</label>
+            <select id="selectUnionQuick" onchange="onUnionSelectChange(this.value)" class="w-full bg-emerald-950 border border-gov-border rounded-xl px-3 py-2 text-white text-sm focus:border-emerald-400 focus:outline-none font-semibold">
+              <option value="বাহাদুরসাদী ইউনিয়ন">৫. বাহাদুরসাদী ইউনিয়ন</option>
+              <option value="নাগরী ইউনিয়ন">৬. নাগরী ইউনিয়ন</option>
+              <option value="বক্তারপুর ইউনিয়ন">১. বক্তারপুর ইউনিয়ন</option>
+              <option value="মোক্তারপুর ইউনিয়ন">২. মোক্তারপুর ইউনিয়ন</option>
+              <option value="জামালপুর ইউনিয়ন">৩. জামালপুর ইউনিয়ন</option>
+              <option value="জাঙ্গালিয়া ইউনিয়ন">৪. জাঙ্গালিয়া ইউনিয়ন</option>
+              <option value="তুমুলিয়া ইউনিয়ন">৭. তুমুলিয়া ইউনিয়ন</option>
+              <option value="কালীগঞ্জ পৌরসভা">৮. কালীগঞ্জ পৌরসভা</option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs text-slate-300 mb-1 font-medium">ওয়ার্ড বিবরণ:</label>
+              <input type="text" id="inputWard" value="১–৫ নং ওয়ার্ড" placeholder="যেমন: ১–৫ নং ওয়ার্ড" class="w-full bg-emerald-950 border border-gov-border rounded-xl px-3 py-2 text-white text-xs sm:text-sm focus:border-emerald-400 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-xs text-slate-300 mb-1 font-medium">অতিরিক্ত নোট / স্ট্যাটাস:</label>
+              <input type="text" id="inputNote" value="(বাকি আছে যারা)" placeholder="যেমন: (বাকি আছে যারা)" class="w-full bg-emerald-950 border border-gov-border rounded-xl px-3 py-2 text-white text-xs sm:text-sm focus:border-emerald-400 focus:outline-none">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs text-slate-300 mb-1 font-medium">নির্ধারিত ভেন্যু:</label>
+            <input type="text" id="inputVenue" value="উপজেলা সম্মেলন কক্ষ (হল রুম), কালীগঞ্জ" class="w-full bg-emerald-950 border border-gov-border rounded-xl px-3 py-2 text-white text-xs sm:text-sm focus:border-emerald-400 focus:outline-none">
+          </div>
+        </div>
+
+        <button onclick="applyWardUnion()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition shadow-lg flex items-center justify-center gap-2">
+          <span>📺 স্ক্রিনে লাইভ নোটিশ আপডেট করুন</span>
+        </button>
+      </div>
+
+      <!-- Slide Switcher & Auto-Play Control -->
+      <div class="bg-gov-surface border border-gov-border rounded-3xl p-6 shadow-xl space-y-4">
+        <h3 class="text-sm font-bold text-slate-200 border-b border-gov-border pb-2">
+          স্ক্রিন স্লাইড সুইচ ও অটো-টাইমার
+        </h3>
+        
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <button onclick="goToSlide(0)" class="p-3 rounded-xl bg-emerald-950 hover:bg-emerald-800 text-left border border-emerald-700/50">
+            <span class="block font-bold text-amber-300">১. মূল নোটিশ ব্যানার</span>
+            <span class="text-slate-400 text-[11px]">সাধারণ তথ্য ও নির্দেশনা</span>
+          </button>
+          <button onclick="goToSlide(1)" class="p-3 rounded-xl bg-emerald-950 hover:bg-emerald-800 text-left border border-emerald-700/50">
+            <span class="block font-bold text-emerald-300">২. সময়সূচী সারণী</span>
+            <span class="text-slate-400 text-[11px]">সকল ৮ ইউনিয়ন ও পৌরসভা</span>
+          </button>
+          <button onclick="goToSlide(2)" class="p-3 rounded-xl bg-emerald-950 hover:bg-emerald-800 text-left border border-emerald-700/50">
+            <span class="block font-bold text-emerald-300">৩. কাগজপত্র চেকলিস্ট</span>
+            <span class="text-slate-400 text-[11px]">NID, ব্যাংক হিসাব, ছবি</span>
+          </button>
+          <button onclick="goToSlide(3)" class="p-3 rounded-xl bg-emerald-950 hover:bg-emerald-800 text-left border border-emerald-700/50">
+            <span class="block font-bold text-red-300">৪. সতর্কবার্তা ও বিধি</span>
+            <span class="text-slate-400 text-[11px]">উপজেলা প্রশাসনের নির্দেশ</span>
+          </button>
+        </div>
+
+        <div class="flex items-center justify-between pt-2">
+          <label class="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
+            <input type="checkbox" id="checkAutoCycle" checked onchange="toggleAutoCycle(this.checked)" class="rounded text-emerald-500 w-4 h-4">
+            <span>১০ সেকেন্ড পর পর অটো-স্ক্রোল চালু রাখুন</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Bottom Marquee Ticker -->
+      <div class="bg-gov-surface border border-gov-border rounded-3xl p-6 shadow-xl space-y-4">
+        <h3 class="text-sm font-bold text-slate-200 border-b border-gov-border pb-2">
+          নিচের স্ক্রোলিং নোটিশ (Marquee Ticker)
+        </h3>
+
+        <div>
+          <textarea id="inputTicker" rows="3" class="w-full bg-emerald-950 border border-gov-border rounded-xl p-2.5 text-xs text-slate-200 focus:border-amber-400 focus:outline-none">* ইমাম ও মুয়াজ্জিনদের ভাতা রেজিস্ট্রেশন কার্যক্রম চলমান * বাহাদুরসাদী, নাগরী, বক্তারপুর, মোক্তারপুর, জামালপুর, জাঙ্গালিয়া, তুমুলিয়া ও কালীগঞ্জ পৌরসভার সকল ইমাম-মুয়াজ্জিনদের আহ্বান জানানো হচ্ছে * জরুরী হেল্পলাইন: ০১৮৭৬৫৯৮১৬৪ *</textarea>
+        </div>
+
+        <div class="flex justify-end">
+          <button onclick="applyTicker()" class="px-5 py-2 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-xl text-xs transition">
+            বিজ্ঞপ্তি বার্তা আপডেট করুন
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TAB 2: SCHEDULE MANAGER (ALL 8 UNIONS + MUNICIPALITY) -->
+    <div id="tab-schedule" class="hidden bg-gov-surface border border-gov-border rounded-3xl p-6 shadow-xl space-y-5">
+      <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-gov-border pb-3">
+        <div>
+          <h3 class="text-lg font-bold text-amber-300">
+            ওয়ার্ডভিত্তিক উপস্থিতির সময়সূচী এডিটর
+          </h3>
+          <p class="text-xs text-slate-300">
+            ৮টি ইউনিয়ন ও কালীগঞ্জ পৌরসভার সময়সূচী প্রয়োজনমতো সংযোজন, সম্পাদন বা পরিমার্জন করুন।
+          </p>
+        </div>
+        <button onclick="resetDefaultSchedule()" class="text-xs px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700">
+          🔄 ডিফল্ট সূচী পুনরায় লোড করুন
+        </button>
+      </div>
+
+      <!-- Add New Row Form -->
+      <div class="bg-emerald-950/70 p-4 rounded-2xl border border-emerald-800/60 grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
+        <div>
+          <label class="block text-xs text-slate-300 mb-1">ইউনিয়ন / এলাকা:</label>
+          <select id="newScheduleUnion" class="w-full bg-gov-surface border border-gov-border rounded-xl px-2.5 py-1.5 text-xs text-white">
+            <option value="বাহাদুরসাদী ইউনিয়ন">বাহাদুরসাদী ইউনিয়ন</option>
+            <option value="নাগরী ইউনিয়ন">নাগরী ইউনিয়ন</option>
+            <option value="বক্তারপুর ইউনিয়ন">বক্তারপুর ইউনিয়ন</option>
+            <option value="মোক্তারপুর ইউনিয়ন">মোক্তারপুর ইউনিয়ন</option>
+            <option value="জামালপুর ইউনিয়ন">জামালপুর ইউনিয়ন</option>
+            <option value="জাঙ্গালিয়া ইউনিয়ন">জাঙ্গালিয়া ইউনিয়ন</option>
+            <option value="তুমুলিয়া ইউনিয়ন">তুমুলিয়া ইউনিয়ন</option>
+            <option value="কালীগঞ্জ পৌরসভা">কালীগঞ্জ পৌরসভা</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-300 mb-1">ওয়ার্ড বিবরণ:</label>
+          <input type="text" id="newScheduleWard" placeholder="যেমন: ১–৫ নং ওয়ার্ড" class="w-full bg-gov-surface border border-gov-border rounded-xl px-2.5 py-1.5 text-xs text-white">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-300 mb-1">নির্ধারিত সময়:</label>
+          <input type="text" id="newScheduleTime" placeholder="যেমন: সকাল ১০:০০ টা" class="w-full bg-gov-surface border border-gov-border rounded-xl px-2.5 py-1.5 text-xs text-white">
+        </div>
+        <div>
+          <button onclick="addScheduleRow()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition">
+            + সূচীতে যুক্ত করুন
+          </button>
+        </div>
+      </div>
+
+      <!-- Schedule Table inside Operator -->
+      <div class="overflow-x-auto rounded-xl border border-gov-border">
+        <table class="w-full text-left border-collapse text-xs sm:text-sm">
+          <thead>
+            <tr class="bg-emerald-950 text-amber-300 border-b border-emerald-800">
+              <th class="p-3">ক্রম</th>
+              <th class="p-3">ইউনিয়ন</th>
+              <th class="p-3">ওয়ার্ড</th>
+              <th class="p-3">সময়</th>
+              <th class="p-3 text-right">পদক্ষেপ</th>
+            </tr>
+          </thead>
+          <tbody id="opScheduleTableBody" class="divide-y divide-emerald-950 text-slate-200">
+            <!-- Populated via script -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="flex justify-end">
+        <button onclick="saveAndApplySchedule()" class="px-6 py-2.5 bg-amber-500 hover:bg-amber-400 text-gov-dark font-black rounded-xl text-sm transition shadow-lg">
+          💾 সময়সূচী সংরক্ষণ ও স্ক্রিনে প্রদর্শন
+        </button>
+      </div>
+    </div>
+
+    <!-- TAB 3: SLIDE TEXT EDITORS (SLIDES 1, 3 & 4) -->
+    <div id="tab-slides" class="hidden bg-gov-surface border border-gov-border rounded-3xl p-6 shadow-xl space-y-6">
+      <div class="border-b border-gov-border pb-3">
+        <h3 class="text-lg font-bold text-amber-300">
+          স্লাইড টেক্সট লাইভ কাস্টমাইজার
+        </h3>
+        <p class="text-xs text-slate-300">
+          স্ক্রিনের স্লাইডগুলোতে প্রদর্শিত সকল টেক্সট এখান থেকে পরিবর্তন করতে পারবেন।
+        </p>
+      </div>
+
+      <!-- Slide 1 Fields -->
+      <div class="bg-emerald-950/60 p-4 rounded-2xl border border-emerald-900 space-y-3">
+        <h4 class="text-sm font-bold text-emerald-300">স্লাইড ১: মূল নোটিশ ব্যানার</h4>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-slate-300 mb-1">মূল শিরোনাম:</label>
+            <input type="text" id="edit_s1_title" class="w-full bg-gov-surface border border-gov-border rounded-xl p-2 text-xs text-white">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-300 mb-1">সংক্ষিপ্ত বিবরণ:</label>
+            <input type="text" id="edit_s1_desc" class="w-full bg-gov-surface border border-gov-border rounded-xl p-2 text-xs text-white">
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 3 Fields: Checklist -->
+      <div class="bg-emerald-950/60 p-4 rounded-2xl border border-emerald-900 space-y-3">
+        <h4 class="text-sm font-bold text-emerald-300">স্লাইড ৩: কাগজপত্র চেকলিস্ট</h4>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs text-slate-300 mb-1">নথি ১ (NID):</label>
+            <input type="text" id="edit_s3_c1_title" class="w-full bg-gov-surface border border-gov-border rounded-xl p-1.5 text-xs text-white mb-1">
+            <textarea id="edit_s3_c1_desc" rows="2" class="w-full bg-gov-surface border border-gov-border rounded-xl p-1.5 text-xs text-white"></textarea>
+          </div>
+          <div>
+            <label class="block text-xs text-slate-300 mb-1">নথি ২ (ব্যাংক হিসাব):</label>
+            <input type="text" id="edit_s3_c2_title" class="w-full bg-gov-surface border border-gov-border rounded-xl p-1.5 text-xs text-white mb-1">
+            <textarea id="edit_s3_c2_desc" rows="2" class="w-full bg-gov-surface border border-gov-border rounded-xl p-1.5 text-xs text-white"></textarea>
+          </div>
+          <div>
+            <label class="block text-xs text-slate-300 mb-1">নথি ৩ (ছবি):</label>
+            <input type="text" id="edit_s3_c3_title" class="w-full bg-gov-surface border border-gov-border rounded-xl p-1.5 text-xs text-white mb-1">
+            <textarea id="edit_s3_c3_desc" rows="2" class="w-full bg-gov-surface border border-gov-border rounded-xl p-1.5 text-xs text-white"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 4 Fields: Rules -->
+      <div class="bg-emerald-950/60 p-4 rounded-2xl border border-emerald-900 space-y-3">
+        <h4 class="text-sm font-bold text-red-300">স্লাইড ৪: জরুরী নির্দেশনা ও বিধিমালা</h4>
+        <div class="space-y-2">
+          <div>
+            <label class="block text-xs text-slate-300 mb-1">নির্দেশনা ১:</label>
+            <input type="text" id="edit_s4_r1" class="w-full bg-gov-surface border border-gov-border rounded-xl p-2 text-xs text-white">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-300 mb-1">নির্দেশনা ২:</label>
+            <input type="text" id="edit_s4_r2" class="w-full bg-gov-surface border border-gov-border rounded-xl p-2 text-xs text-white">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-300 mb-1">নির্দেশনা ৩:</label>
+            <input type="text" id="edit_s4_r3" class="w-full bg-gov-surface border border-gov-border rounded-xl p-2 text-xs text-white">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-300 mb-1">নির্দেশনা ৪:</label>
+            <input type="text" id="edit_s4_r4" class="w-full bg-gov-surface border border-gov-border rounded-xl p-2 text-xs text-white">
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end">
+        <button onclick="saveAndApplySlideTexts()" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-sm transition shadow-lg">
+          💾 সকল স্লাইড টেক্সট আপডেট করুন
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // System Data Model
+    const appState = {
+      token: 1,
+      counterText: "কাউন্টার নম্বর: ০১ এ উপস্থিত হোন",
+      union: "বাহাদুরসাদী ইউনিয়ন",
+      ward: "১–৫ নং ওয়ার্ড",
+      note: "(বাকি আছে যারা)",
+      venue: "উপজেলা সম্মেলন কক্ষ (হল রুম), কালীগঞ্জ",
+      slideIndex: 0,
+      autoCycle: true,
+      ticker: "* ইমাম ও মুয়াজ্জিনদের ভাতা রেজিস্ট্রেশন কার্যক্রম চলমান * বাহাদুরসাদী, নাগরী, বক্তারপুর, মোক্তারপুর, জামালপুর, জাঙ্গালিয়া, তুমুলিয়া ও কালীগঞ্জ পৌরসভার সকল ইমাম-মুয়াজ্জিনদের আহ্বান জানানো হচ্ছে * জরুরী হেল্পলাইন: ০১৮৭৬৫৯৮১৬৪ *",
+      lastSoundAt: 0,
+      // Comprehensive schedule for all unions
+      schedule: [
+        { union: "বাহাদুরসাদী ইউনিয়ন", ward: "১–৫ নং ওয়ার্ড (বাকি যারা)", time: "সকাল ০৯:৩০ টা" },
+        { union: "বাহাদুরসাদী ইউনিয়ন", ward: "৬–৯ নং ওয়ার্ড", time: "সকাল ১০:৩০ টা" },
+        { union: "নাগরী ইউনিয়ন", ward: "১–৪ নং ওয়ার্ড", time: "সকাল ১১:৩০ টা" },
+        { union: "নাগরী ইউনিয়ন", ward: "৫–৯ নং ওয়ার্ড", time: "দুপুর ১২:৩০ টা" },
+        { union: "বক্তারপুর ইউনিয়ন", ward: "১–৯ নং ওয়ার্ড", time: "দুপুর ০২:০০ টা" },
+        { union: "মোক্তারপুর ইউনিয়ন", ward: "১–৯ নং ওয়ার্ড", time: "দুপুর ০২:৪৫ টা" },
+        { union: "জামালপুর ইউনিয়ন", ward: "১–৯ নং ওয়ার্ড", time: "বিকাল ০৩:৩০ টা" },
+        { union: "জাঙ্গালিয়া ও তুমুলিয়া", ward: "সকল ওয়ার্ড", time: "বিকাল ০৪:১৫ টা" },
+        { union: "কালীগঞ্জ পৌরসভা", ward: "১–৯ নং ওয়ার্ড ও অবশিষ্ট", time: "বিকাল ০৫:০০ টা" }
+      ],
+      // Slide custom texts
+      slideTexts: {
+        s1_title: "জরুরী নোটিশ: ইমাম ও মুয়াজ্জিনদের ভাতা রেজিস্ট্রেশন",
+        s1_desc: "কালীগঞ্জ উপজেলার সকল ইউনিয়নের সম্মানিত ইমাম ও মুয়াজ্জিন সাহেবগণকে নির্ধারিত সময়সূচী মোতাবেক প্রয়োজনীয় কাগজপত্রসহ উপজেলা সম্মেলন কক্ষে উপস্থিত হওয়ার জন্য অনুরোধ করা যাচ্ছে।",
+        s3_c1_title: "মূল জাতীয় পরিচয়পত্র (NID)",
+        s3_c1_desc: "আবেদনকারীর মূল NID কার্ড প্রদর্শন এবং ১ কপি পরিষ্কার ফটোকপি জমা দিতে হবে।",
+        s3_c2_title: "ব্যাংক হিসাব ও চেকপাতা",
+        s3_c2_desc: "যেকোনো তফসিলি ব্যাংকে নিজের নামের সচল একাউন্টের চেকবইয়ের পাতা বা স্টেটমেন্ট।",
+        s3_c3_title: "পাসপোর্ট সাইজ ছবি",
+        s3_c3_desc: "সদ্য তোলা ২ কপি পাসপোর্ট সাইজের স্পষ্ট রঙিন ল্যাব প্রিন্ট ছবি।",
+        s4_r1: "নির্ধারিত সময়ে উপস্থিতি বাধ্যতামূলক: নির্ধারিত ইউনিয়ন ও ওয়ার্ডের স্লট শেষ হলে পরবর্তী সাধারণ সেশনে অপেক্ষা করতে হবে।",
+        s4_r2: "টোকেন নম্বর কলিং: স্ক্রিনে ঘোষিত টোকেন নম্বর অনুযায়ী সরাসরি নির্ধারিত বুথে আগমন করুন।",
+        s4_r3: "কোনো মধ্যস্বত্বভোগী নয়: ভাতা সংক্রান্ত সম্পূর্ণ প্রক্রিয়া উপজেলা প্রশাসন কর্তৃক সরাসরি ও সম্পূর্ণ বিনামূল্যে পরিচালিত।",
+        s4_r4: "সহায়তা ও তথ্য যাচাই: যেকোনো দ্বিধায় তাৎক্ষণিক হোয়াটসঅ্যাপ হেল্পলাইনে ০১৮৭৬৫৯৮১৬৪ যোগাযোগ করুন।"
+      }
+    };
+
+    // Cross-tab Synchronization
+    const channel = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel('kaliganj_display_sync') : null;
+
+    // Convert to Bengali Numbers
+    function toBanglaDigits(num) {
+      const bn = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+      return String(num).padStart(3, '0').split('').map(d => bn[d] !== undefined ? bn[d] : d).join('');
+    }
+
+    // Audio chime with Web Audio API
+    function playChime() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const now = ctx.currentTime;
+
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        const gain2 = ctx.createGain();
+
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(659.25, now);
+        osc1.frequency.exponentialRampToValueAtTime(587.33, now + 0.8);
+
+        osc2.type = 'triangle';
+        osc2.frequency.setValueAtTime(880, now + 0.2);
+        osc2.frequency.exponentialRampToValueAtTime(880, now + 1.2);
+
+        gain1.gain.setValueAtTime(0.4, now);
+        gain1.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+
+        gain2.gain.setValueAtTime(0.001, now);
+        gain2.gain.setValueAtTime(0.5, now + 0.2);
+        gain2.gain.exponentialRampToValueAtTime(0.0001, now + 1.6);
+
+        osc1.connect(gain1);
+        gain1.connect(ctx.destination);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+
+        osc1.start(now);
+        osc1.stop(now + 1.3);
+        osc2.start(now + 0.2);
+        osc2.stop(now + 1.7);
+      } catch (e) {
+        console.warn("Audio Context init waiting for interaction:", e);
+      }
+    }
+
+    // Main Renderer
+    function renderState(playBell = false) {
+      const bnToken = toBanglaDigits(appState.token);
+      
+      // Screen elements
+      const tokenEl = document.getElementById('screenTokenNum');
+      if (tokenEl) tokenEl.textContent = bnToken;
+
+      const subEl = document.getElementById('screenTokenSub');
+      if (subEl) subEl.textContent = appState.counterText;
+
+      const unionEl = document.getElementById('screenUnion');
+      if (unionEl) unionEl.textContent = appState.union;
+
+      const wardEl = document.getElementById('screenWard');
+      if (wardEl) wardEl.textContent = appState.ward;
+
+      const noteEl = document.getElementById('screenNote');
+      if (noteEl) noteEl.textContent = appState.note;
+
+      const venueEl = document.getElementById('screenVenue');
+      if (venueEl) venueEl.innerHTML = `ভেন্যু: <strong>${appState.venue}</strong>`;
+
+      const tickerEl = document.getElementById('screenTicker');
+      if (tickerEl) tickerEl.textContent = appState.ticker;
+
+      // Operator elements
+      const opToken = document.getElementById('opTokenDisplay');
+      if (opToken) opToken.textContent = bnToken;
+
+      const inToken = document.getElementById('inputToken');
+      if (inToken && document.activeElement !== inToken) inToken.value = appState.token;
+
+      // Render Schedule Table
+      renderScheduleTables();
+
+      // Render Customizable Slide Texts
+      renderSlideTexts();
+
+      // Update slide carousel view
+      updateSlideDisplay();
+
+      if (playBell) {
+        playChime();
+      }
+    }
+
+    // Render schedule tables on both Screen and Operator
+    function renderScheduleTables() {
+      const screenTable = document.getElementById('scheduleTableDisplay');
+      const opTable = document.getElementById('opScheduleTableBody');
+
+      if (screenTable) {
+        screenTable.innerHTML = appState.schedule.map((item, idx) => `
+          <tr class="hover:bg-emerald-900/30 transition border-b border-emerald-950">
+            <td class="py-2.5 px-4 font-mono font-bold text-amber-400">${toBanglaDigits(idx + 1)}</td>
+            <td class="py-2.5 px-4 font-bold text-white">${item.union}</td>
+            <td class="py-2.5 px-4 text-emerald-200">${item.ward}</td>
+            <td class="py-2.5 px-4 font-bold text-right text-amber-300 font-mono">${item.time}</td>
+          </tr>
+        `).join('');
+      }
+
+      if (opTable) {
+        opTable.innerHTML = appState.schedule.map((item, idx) => `
+          <tr class="hover:bg-emerald-950/80 transition border-b border-emerald-900">
+            <td class="p-3 font-mono font-bold text-amber-400">${idx + 1}</td>
+            <td class="p-3 font-bold text-white">${item.union}</td>
+            <td class="p-3">${item.ward}</td>
+            <td class="p-3 font-mono text-emerald-300">${item.time}</td>
+            <td class="p-3 text-right">
+              <button onclick="deleteScheduleRow(${idx})" class="text-red-400 hover:text-red-300 font-bold px-2 py-1 rounded bg-red-950/60 border border-red-800">মুছুন</button>
+            </td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    // Render Slide Custom Texts
+    function renderSlideTexts() {
+      const t = appState.slideTexts || {};
+      
+      const s1Title = document.getElementById('s1_title');
+      if (s1Title && t.s1_title) s1Title.textContent = t.s1_title;
+
+      const s1Desc = document.getElementById('s1_desc');
+      if (s1Desc && t.s1_desc) s1Desc.textContent = t.s1_desc;
+
+      const s3c1Title = document.getElementById('s3_card1_title');
+      if (s3c1Title && t.s3_c1_title) s3c1Title.textContent = t.s3_c1_title;
+      const s3c1Desc = document.getElementById('s3_card1_desc');
+      if (s3c1Desc && t.s3_c1_desc) s3c1Desc.textContent = t.s3_c1_desc;
+
+      const s3c2Title = document.getElementById('s3_card2_title');
+      if (s3c2Title && t.s3_c2_title) s3c2Title.textContent = t.s3_c2_title;
+      const s3c2Desc = document.getElementById('s3_card2_desc');
+      if (s3c2Desc && t.s3_c2_desc) s3c2Desc.textContent = t.s3_c2_desc;
+
+      const s3c3Title = document.getElementById('s3_card3_title');
+      if (s3c3Title && t.s3_c3_title) s3c3Title.textContent = t.s3_c3_title;
+      const s3c3Desc = document.getElementById('s3_card3_desc');
+      if (s3c3Desc && t.s3_c3_desc) s3c3Desc.textContent = t.s3_c3_desc;
+
+      const s4r1 = document.getElementById('s4_rule1');
+      if (s4r1 && t.s4_r1) s4r1.innerHTML = `<span class="text-amber-400 font-bold text-lg">•</span> <span>${t.s4_r1}</span>`;
+
+      const s4r2 = document.getElementById('s4_rule2');
+      if (s4r2 && t.s4_r2) s4r2.innerHTML = `<span class="text-amber-400 font-bold text-lg">•</span> <span>${t.s4_r2}</span>`;
+
+      const s4r3 = document.getElementById('s4_rule3');
+      if (s4r3 && t.s4_r3) s4r3.innerHTML = `<span class="text-amber-400 font-bold text-lg">•</span> <span>${t.s4_r3}</span>`;
+
+      const s4r4 = document.getElementById('s4_rule4');
+      if (s4r4 && t.s4_r4) s4r4.innerHTML = `<span class="text-amber-400 font-bold text-lg">•</span> <span>${t.s4_r4}</span>`;
+    }
+
+    // Populate Operator Slide Editor Inputs
+    function populateSlideEditorFields() {
+      const t = appState.slideTexts || {};
+      const setVal = (id, val) => {
+        const el = document.getElementById(id);
+        if (el && val) el.value = val;
+      };
+
+      setVal('edit_s1_title', t.s1_title);
+      setVal('edit_s1_desc', t.s1_desc);
+      setVal('edit_s3_c1_title', t.s3_c1_title);
+      setVal('edit_s3_c1_desc', t.s3_c1_desc);
+      setVal('edit_s3_c2_title', t.s3_c2_title);
+      setVal('edit_s3_c2_desc', t.s3_c2_desc);
+      setVal('edit_s3_c3_title', t.s3_c3_title);
+      setVal('edit_s3_c3_desc', t.s3_c3_desc);
+      setVal('edit_s4_r1', t.s4_r1);
+      setVal('edit_s4_r2', t.s4_r2);
+      setVal('edit_s4_r3', t.s4_r3);
+      setVal('edit_s4_r4', t.s4_r4);
+    }
+
+    // Slide Carousel Management
+    function goToSlide(index) {
+      appState.slideIndex = index;
+      resetSlideTimer();
+      updateSlideDisplay();
+      broadcastChanges(false);
+    }
+
+    function updateSlideDisplay() {
+      const slides = document.querySelectorAll('.slide-item');
+      const dots = document.querySelectorAll('.slide-dot');
+
+      slides.forEach((slide, idx) => {
+        if (idx === appState.slideIndex) {
+          slide.classList.remove('hidden');
+        } else {
+          slide.classList.add('hidden');
+        }
+      });
+
+      dots.forEach((dot, idx) => {
+        if (idx === appState.slideIndex) {
+          dot.className = "slide-dot w-7 h-2.5 rounded-full bg-amber-400 transition-all shadow-md";
+        } else {
+          dot.className = "slide-dot w-7 h-2.5 rounded-full bg-slate-700 transition-all";
+        }
+      });
+    }
+
+    // 10-Second Auto-Slide Timer with Visual Progress Bar
+    let autoSlideTimer = null;
+    let progressInterval = null;
+    let progressPercent = 0;
+
+    function startAutoSlide() {
+      stopAutoSlide();
+      if (!appState.autoCycle) return;
+
+      progressPercent = 0;
+      const stepMs = 100;
+      const totalMs = 10000; // 10 seconds
+
+      progressInterval = setInterval(() => {
+        if (!appState.autoCycle) return;
+        progressPercent += (stepMs / totalMs) * 100;
+        const bar = document.getElementById('progressBar');
+        if (bar) bar.style.width = Math.min(progressPercent, 100) + '%';
+
+        if (progressPercent >= 100) {
+          progressPercent = 0;
+          appState.slideIndex = (appState.slideIndex + 1) % 4;
+          updateSlideDisplay();
+          broadcastChanges(false);
+        }
+      }, stepMs);
+    }
+
+    function stopAutoSlide() {
+      if (progressInterval) clearInterval(progressInterval);
+      const bar = document.getElementById('progressBar');
+      if (bar) bar.style.width = '0%';
+    }
+
+    function resetSlideTimer() {
+      progressPercent = 0;
+      const bar = document.getElementById('progressBar');
+      if (bar) bar.style.width = '0%';
+    }
+
+    function toggleAutoPlay() {
+      toggleAutoCycle(!appState.autoCycle);
+    }
+
+    function toggleAutoCycle(enabled) {
+      appState.autoCycle = enabled;
+      const indText = document.getElementById('autoIndicatorText');
+      const indDot = document.getElementById('autoIndicatorDot');
+      const chk = document.getElementById('checkAutoCycle');
+
+      if (chk) chk.checked = enabled;
+      if (indText) indText.textContent = enabled ? 'অটো স্লাইড: ১০ সে.' : 'অটো স্লাইড: বন্ধ';
+      if (indDot) indDot.className = enabled ? 'w-2 h-2 rounded-full bg-emerald-400 animate-ping' : 'w-2 h-2 rounded-full bg-slate-500';
+
+      if (enabled) {
+        startAutoSlide();
+      } else {
+        stopAutoSlide();
+      }
+      broadcastChanges(false);
+    }
+
+    // Multi-Window Synchronization
+    function broadcastChanges(triggerBell = false) {
+      if (triggerBell) {
+        appState.lastSoundAt = Date.now();
+      }
+      localStorage.setItem('kaliganj_display_state', JSON.stringify(appState));
+      if (channel) {
+        channel.postMessage({ state: appState, triggerBell });
+      }
+    }
+
+    if (channel) {
+      channel.onmessage = (event) => {
+        if (event.data && event.data.state) {
+          Object.assign(appState, event.data.state);
+          renderState(event.data.triggerBell);
+        }
+      };
+    }
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'kaliganj_display_state' && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          const shouldBell = parsed.lastSoundAt && parsed.lastSoundAt !== appState.lastSoundAt;
+          Object.assign(appState, parsed);
+          renderState(shouldBell);
+        } catch (err) {}
+      }
+    });
+
+    // Operator Controls
+    function changeToken(delta) {
+      appState.token = Math.max(1, appState.token + delta);
+      renderState(true);
+      broadcastChanges(true);
+    }
+
+    function applyToken() {
+      const val = parseInt(document.getElementById('inputToken').value, 10);
+      const counter = document.getElementById('inputCounter').value.trim();
+      if (!isNaN(val) && val > 0) {
+        appState.token = val;
+      }
+      if (counter) {
+        appState.counterText = counter;
+      }
+      renderState(true);
+      broadcastChanges(true);
+    }
+
+    function onUnionSelectChange(selected) {
+      const wardMap = {
+        "বাহাদুরসাদী ইউনিয়ন": "১–৫ নং ওয়ার্ড",
+        "নাগরী ইউনিয়ন": "১–৪ নং ওয়ার্ড",
+        "বক্তারপুর ইউনিয়ন": "১–৩ নং ওয়ার্ড",
+        "মোক্তারপুর ইউনিয়ন": "১–৯ নং ওয়ার্ড",
+        "জামালপুর ইউনিয়ন": "১–৫ নং ওয়ার্ড",
+        "জাঙ্গালিয়া ইউনিয়ন": "১–৯ নং ওয়ার্ড",
+        "তুমুলিয়া ইউনিয়ন": "১–৯ নং ওয়ার্ড",
+        "কালীগঞ্জ পৌরসভা": "১–৯ নং ওয়ার্ড"
+      };
+      if (wardMap[selected]) {
+        document.getElementById('inputWard').value = wardMap[selected];
+      }
+    }
+
+    function applyWardUnion() {
+      const union = document.getElementById('selectUnionQuick').value;
+      const ward = document.getElementById('inputWard').value.trim();
+      const note = document.getElementById('inputNote').value.trim();
+      const venue = document.getElementById('inputVenue').value.trim();
+
+      if (union) appState.union = union;
+      if (ward) appState.ward = ward;
+      if (note) appState.note = note;
+      if (venue) appState.venue = venue;
+
+      // Switch to Slide 1 to highlight live call
+      appState.slideIndex = 0;
+
+      renderState(true);
+      broadcastChanges(true);
+    }
+
+    function applyTicker() {
+      const text = document.getElementById('inputTicker').value.trim();
+      if (text) {
+        appState.ticker = text;
+        renderState(false);
+        broadcastChanges(false);
+      }
+    }
+
+    // Schedule Controls
+    function addScheduleRow() {
+      const union = document.getElementById('newScheduleUnion').value;
+      const ward = document.getElementById('newScheduleWard').value.trim();
+      const time = document.getElementById('newScheduleTime').value.trim();
+
+      if (!ward || !time) {
+        alert("দয়া করে ওয়ার্ড ও সময় সঠিকভাবে লিখুন");
+        return;
+      }
+
+      appState.schedule.push({ union, ward, time });
+      renderScheduleTables();
+      broadcastChanges(false);
+
+      document.getElementById('newScheduleWard').value = '';
+      document.getElementById('newScheduleTime').value = '';
+    }
+
+    function deleteScheduleRow(index) {
+      appState.schedule.splice(index, 1);
+      renderScheduleTables();
+      broadcastChanges(false);
+    }
+
+    function saveAndApplySchedule() {
+      renderScheduleTables();
+      broadcastChanges(false);
+      alert("সময়সূচী সফলভাবে সংরক্ষিত হয়েছে!");
+    }
+
+    function resetDefaultSchedule() {
+      appState.schedule = [
+        { union: "বাহাদুরসাদী ইউনিয়ন", ward: "১–৫ নং ওয়ার্ড (বাকি যারা)", time: "সকাল ০৯:৩০ টা" },
+        { union: "বাহাদুরসাদী ইউনিয়ন", ward: "৬–৯ নং ওয়ার্ড", time: "সকাল ১০:৩০ টা" },
+        { union: "নাগরী ইউনিয়ন", ward: "১–৪ নং ওয়ার্ড", time: "সকাল ১১:৩০ টা" },
+        { union: "নাগরী ইউনিয়ন", ward: "৫–৯ নং ওয়ার্ড", time: "দুপুর ১২:৩০ টা" },
+        { union: "বক্তারপুর ইউনিয়ন", ward: "১–৯ নং ওয়ার্ড", time: "দুপুর ০২:০০ টা" },
+        { union: "মোক্তারপুর ইউনিয়ন", ward: "১–৯ নং ওয়ার্ড", time: "দুপুর ০২:৪৫ টা" },
+        { union: "জামালপুর ইউনিয়ন", ward: "১–৯ নং ওয়ার্ড", time: "বিকাল ০৩:৩০ টা" },
+        { union: "জাঙ্গালিয়া ও তুমুলিয়া", ward: "সকল ওয়ার্ড", time: "বিকাল ০৪:১৫ টা" },
+        { union: "কালীগঞ্জ পৌরসভা", ward: "১–৯ নং ওয়ার্ড ও অবশিষ্ট", time: "বিকাল ০৫:০০ টা" }
+      ];
+      renderScheduleTables();
+      broadcastChanges(false);
+    }
+
+    // Slide Text Customizer Save
+    function saveAndApplySlideTexts() {
+      appState.slideTexts = {
+        s1_title: document.getElementById('edit_s1_title').value.trim(),
+        s1_desc: document.getElementById('edit_s1_desc').value.trim(),
+        s3_c1_title: document.getElementById('edit_s3_c1_title').value.trim(),
+        s3_c1_desc: document.getElementById('edit_s3_c1_desc').value.trim(),
+        s3_c2_title: document.getElementById('edit_s3_c2_title').value.trim(),
+        s3_c2_desc: document.getElementById('edit_s3_c2_desc').value.trim(),
+        s3_c3_title: document.getElementById('edit_s3_c3_title').value.trim(),
+        s3_c3_desc: document.getElementById('edit_s3_c3_desc').value.trim(),
+        s4_r1: document.getElementById('edit_s4_r1').value.trim(),
+        s4_r2: document.getElementById('edit_s4_r2').value.trim(),
+        s4_r3: document.getElementById('edit_s4_r3').value.trim(),
+        s4_r4: document.getElementById('edit_s4_r4').value.trim()
+      };
+      renderSlideTexts();
+      broadcastChanges(false);
+      alert("স্লাইডের টেক্সট সফলভাবে আপডেট হয়েছে!");
+    }
+
+    // Switch Operator Tabs
+    function switchOpTab(tabId) {
+      ['tab-live', 'tab-schedule', 'tab-slides'].forEach(id => {
+        const el = document.getElementById(id);
+        const btn = document.getElementById('tabBtn-' + id.replace('tab-', ''));
+        if (id === tabId) {
+          el.classList.remove('hidden');
+          btn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-500 text-gov-dark transition shadow";
+        } else {
+          el.classList.add('hidden');
+          btn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-emerald-950 text-slate-300 hover:text-white transition";
+        }
+      });
+    }
+
+    // Operator mode protection
+    const OPERATOR_PASSWORD = 'tasa3982';
+    let operatorUnlocked = false;
+
+    function requestOperatorAccess() {
+      const enteredPassword = window.prompt('Operator Desk password দিন:');
+
+      if (enteredPassword === OPERATOR_PASSWORD) {
+        operatorUnlocked = true;
+        setMode('operator');
+      } else if (enteredPassword !== null) {
+        window.alert('ভুল password। Operator Desk খোলা যায়নি।');
+      }
+    }
+
+    // Display vs Operator Mode
+    function setMode(mode) {
+      const screenView = document.getElementById('screenView');
+      const opView = document.getElementById('operatorView');
+      const btnScreen = document.getElementById('btnDisplayMode');
+      const btnOp = document.getElementById('btnOperatorMode');
+
+      if (mode === 'operator' && !operatorUnlocked) {
+        requestOperatorAccess();
+        return;
+      }
+
+      if (mode === 'screen') {
+        screenView.classList.remove('hidden');
+        opView.classList.add('hidden');
+        btnScreen.className = "px-3 py-1.5 rounded-lg font-semibold transition-all bg-emerald-600 text-white shadow";
+        btnOp.className = "px-3 py-1.5 rounded-lg font-semibold transition-all text-slate-300 hover:text-white hover:bg-emerald-900";
+      } else {
+        screenView.classList.add('hidden');
+        opView.classList.remove('hidden');
+        btnOp.className = "px-3 py-1.5 rounded-lg font-semibold transition-all bg-amber-500 text-gov-dark font-bold shadow";
+        btnScreen.className = "px-3 py-1.5 rounded-lg font-semibold transition-all text-slate-300 hover:text-white hover:bg-emerald-900";
+        populateSlideEditorFields();
+      }
+    }
+
+    function openDisplayInNewWindow() {
+      window.open(window.location.href, '_blank', 'menubar=no,toolbar=no,location=no,status=no');
+    }
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+
+    // Live Clock & Date in Bengali
+    function updateClock() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+
+      const bnDigits = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
+      const toBn = s => s.split('').map(d => bnDigits[d] !== undefined ? bnDigits[d] : d).join('');
+
+      const clockEl = document.getElementById('liveClock');
+      if (clockEl) clockEl.textContent = `${toBn(hours)}:${toBn(minutes)}:${toBn(seconds)}`;
+
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const dateStr = now.toLocaleDateString('bn-BD', options);
+      const dateEl = document.getElementById('liveDate');
+      if (dateEl) dateEl.textContent = dateStr;
+    }
+
+    // App Initialization
+    window.addEventListener('DOMContentLoaded', () => {
+      const saved = localStorage.getItem('kaliganj_display_state');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          Object.assign(appState, parsed);
+        } catch (e) {}
+      }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('mode') === 'operator') {
+        setMode('operator');
+      } else {
+        setMode('screen');
+      }
+
+      renderState(false);
+      populateSlideEditorFields();
+      startAutoSlide();
+      updateClock();
+      setInterval(updateClock, 1000);
+    });
+  </script>
+</body>
+</html>
