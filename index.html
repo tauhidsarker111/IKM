@@ -1028,7 +1028,7 @@ function pauseCarouselForHold(event) {
   if (screenHeld) return;
 
   screenHeld = true;
-  stopAutoSlide();
+  stopAutoSlide(false);
 }
 
 function resumeCarouselAfterHold() {
@@ -1036,41 +1036,54 @@ function resumeCarouselAfterHold() {
 
   screenHeld = false;
 
-  appState.slideIndex = (appState.slideIndex + 1) % 4;
-  updateSlideDisplay();
-
-  resetSlideTimer();
-  startAutoSlide();
+  // Continue from the same countdown position
+  startAutoSlide(false);
 }
 
-    function startAutoSlide() {
-      stopAutoSlide();
-      if (!appState.autoCycle) return;
+function startAutoSlide(resetProgress = true) {
+  stopAutoSlide(false);
 
+  if (!appState.autoCycle) return;
+
+  if (resetProgress) {
+    progressPercent = 0;
+  }
+
+  const stepMs = 100;
+  const totalMs = 10000;
+
+  progressInterval = setInterval(() => {
+    if (!appState.autoCycle || screenHeld) return;
+
+    progressPercent += (stepMs / totalMs) * 100;
+
+    const bar = document.getElementById('progressBar');
+    if (bar) {
+      bar.style.width = Math.min(progressPercent, 100) + '%';
+    }
+
+    if (progressPercent >= 100) {
       progressPercent = 0;
-      const stepMs = 100;
-      const totalMs = 10000; // 10 seconds
-
-      progressInterval = setInterval(() => {
-        if (!appState.autoCycle) return;
-        progressPercent += (stepMs / totalMs) * 100;
-        const bar = document.getElementById('progressBar');
-        if (bar) bar.style.width = Math.min(progressPercent, 100) + '%';
-
-        if (progressPercent >= 100) {
-          progressPercent = 0;
-          appState.slideIndex = (appState.slideIndex + 1) % 4;
-          updateSlideDisplay();
-          broadcastChanges(false);
-        }
-      }, stepMs);
+      updateSlideDisplay();
     }
+  }, stepMs);
+}
 
-    function stopAutoSlide() {
-      if (progressInterval) clearInterval(progressInterval);
-      const bar = document.getElementById('progressBar');
-      if (bar) bar.style.width = '0%';
+    function stopAutoSlide(resetProgress = true) {
+  if (progressInterval) {
+    clearInterval(progressInterval);
+    progressInterval = null;
+  }
+
+  if (resetProgress) {
+    progressPercent = 0;
+
+    const bar = document.getElementById('progressBar');
+    if (bar) {
+      bar.style.width = '0%';
     }
+  }
+}
 
     function resetSlideTimer() {
       progressPercent = 0;
