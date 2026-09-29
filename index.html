@@ -205,7 +205,7 @@
     </section>
 
     <!-- CENTER CAROUSEL: 4 PRESENTATION SLIDES (AUTO 10 SECONDS) -->
-    <section class="flex-1 bg-gradient-to-b from-gov-surface/90 to-emerald-950/80 border border-gov-border rounded-3xl p-5 sm:p-7 flex flex-col justify-between relative overflow-hidden shadow-2xl min-h-[420px]">
+    <section id="carouselArea" class="flex-1 bg-gradient-to-b from-gov-surface/90 to-emerald-950/80 border border-gov-border rounded-3xl p-5 sm:p-7 flex flex-col justify-between relative overflow-hidden shadow-2xl min-h-[420px]">
       
       <!-- Slide Indicator Dots & 10s Timer Bar -->
       <div class="w-full flex items-center justify-between pb-3 border-b border-emerald-900/70">
@@ -1020,6 +1020,28 @@
     let autoSlideTimer = null;
     let progressInterval = null;
     let progressPercent = 0;
+    let screenHeld = false;
+
+function pauseCarouselForHold(event) {
+  if (event.target.closest('button, input, select, textarea, a')) return;
+
+  if (screenHeld) return;
+
+  screenHeld = true;
+  stopAutoSlide();
+}
+
+function resumeCarouselAfterHold() {
+  if (!screenHeld) return;
+
+  screenHeld = false;
+
+  appState.slideIndex = (appState.slideIndex + 1) % 4;
+  updateSlideDisplay();
+
+  resetSlideTimer();
+  startAutoSlide();
+}
 
     function startAutoSlide() {
       stopAutoSlide();
@@ -1349,6 +1371,18 @@
       renderState(false);
       populateSlideEditorFields();
       startAutoSlide();
+      const carouselArea = document.getElementById('carouselArea');
+
+if (carouselArea) {
+  carouselArea.addEventListener('pointerdown', (event) => {
+    carouselArea.setPointerCapture(event.pointerId);
+    pauseCarouselForHold(event);
+  });
+
+  carouselArea.addEventListener('pointerup', resumeCarouselAfterHold);
+  carouselArea.addEventListener('pointercancel', resumeCarouselAfterHold);
+  carouselArea.addEventListener('lostpointercapture', resumeCarouselAfterHold);
+}
       updateClock();
       setInterval(updateClock, 1000);
     });
