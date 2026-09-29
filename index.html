@@ -8,6 +8,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -774,6 +776,26 @@
       }
     };
 
+    // Firebase shared state
+    const firebaseConfig = {
+      apiKey: "AIzaSyDXqpJ3NhJz1z4x7A9IbWgdD8EAqocPl0g",
+      authDomain: "imk1-1304a.firebaseapp.com",
+      databaseURL: "https://imk1-1304a-default-rtdb.firebaseio.com",
+      projectId: "imk1-1304a",
+      storageBucket: "imk1-1304a.firebasestorage.app",
+      messagingSenderId: "876089808096",
+      appId: "1:876089808096:web:b46fa8e2c906c3cfd82c85",
+      measurementId: "G-XHZZWVXTP1"
+    };
+
+    let sharedStateRef = null;
+    try {
+      firebase.initializeApp(firebaseConfig);
+      sharedStateRef = firebase.database().ref('kaliganj_display_state');
+    } catch (error) {
+      console.error('Firebase initialization failed:', error);
+    }
+
     // Cross-tab Synchronization
     const channel = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel('kaliganj_display_sync') : null;
 
@@ -1059,7 +1081,11 @@
       if (triggerBell) {
         appState.lastSoundAt = Date.now();
       }
-      localStorage.setItem('kaliganj_display_state', JSON.stringify(appState));
+      if (sharedStateRef) {
+        sharedStateRef.set({ ...appState }).catch((error) => {
+          console.error('Could not save shared state:', error);
+        });
+      }
       if (channel) {
         channel.postMessage({ state: appState, triggerBell });
       }
@@ -1074,16 +1100,20 @@
       };
     }
 
-    window.addEventListener('storage', (e) => {
-      if (e.key === 'kaliganj_display_state' && e.newValue) {
-        try {
-          const parsed = JSON.parse(e.newValue);
-          const shouldBell = parsed.lastSoundAt && parsed.lastSoundAt !== appState.lastSoundAt;
-          Object.assign(appState, parsed);
+    if (sharedStateRef) {
+      sharedStateRef.on('value', (snapshot) => {
+        const sharedState = snapshot.val();
+        if (sharedState) {
+          const shouldBell = sharedState.lastSoundAt && sharedState.lastSoundAt !== appState.lastSoundAt;
+          Object.assign(appState, sharedState);
           renderState(shouldBell);
-        } catch (err) {}
-      }
-    });
+        } else {
+          sharedStateRef.set({ ...appState }).catch((error) => {
+            console.error('Could not initialize shared state:', error);
+          });
+        }
+      });
+    }
 
     // Operator Controls
     function changeToken(delta) {
@@ -1305,14 +1335,6 @@
 
     // App Initialization
     window.addEventListener('DOMContentLoaded', () => {
-      const saved = localStorage.getItem('kaliganj_display_state');
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          Object.assign(appState, parsed);
-        } catch (e) {}
-      }
-
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get('mode') === 'operator') {
         setMode('operator');
