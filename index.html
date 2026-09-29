@@ -789,6 +789,7 @@
     };
 
     let sharedStateRef = null;
+    let sharedStateLoaded = false;
     try {
       firebase.initializeApp(firebaseConfig);
       sharedStateRef = firebase.database().ref('kaliganj_display_state');
@@ -1081,7 +1082,7 @@
       if (triggerBell) {
         appState.lastSoundAt = Date.now();
       }
-      if (sharedStateRef) {
+      if (sharedStateRef && sharedStateLoaded) {
         sharedStateRef.set({ ...appState }).catch((error) => {
           console.error('Could not save shared state:', error);
         });
@@ -1106,8 +1107,10 @@
         if (sharedState) {
           const shouldBell = sharedState.lastSoundAt && sharedState.lastSoundAt !== appState.lastSoundAt;
           Object.assign(appState, sharedState);
+          sharedStateLoaded = true;
           renderState(shouldBell);
         } else {
+          sharedStateLoaded = true;
           sharedStateRef.set({ ...appState }).catch((error) => {
             console.error('Could not initialize shared state:', error);
           });
